@@ -1,8 +1,8 @@
 # Unified dependencies for multi-agent-rl-mapf-drone-system
 
 # Core ML stack
-gym==0.26.2
-torch==2.0.1
+gymnasium>=0.29.1
+torch==2.2.2
 numpy==1.24.3
 matplotlib==3.7.1
 
