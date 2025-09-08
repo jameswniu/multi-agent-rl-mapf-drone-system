@@ -1,0 +1,47 @@
+{
+  "dashboard": {
+    "title": "Drone System Observability",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Request Latency (p95)",
+        "targets": [
+          { "expr": "histogram_quantile(0.95, sum(rate(api_request_latency_seconds_bucket[5m])) by (le))" }
+        ],
+        "description": "Shows 95th percentile latency for API requests. Important for SLOs."
+      },
+      {
+        "type": "stat",
+        "title": "Total Requests",
+        "targets": [
+          { "expr": "sum(api_requests_total)" }
+        ],
+        "description": "Running total of all API requests."
+      },
+      {
+        "type": "graph",
+        "title": "Requests by Endpoint",
+        "targets": [
+          { "expr": "sum(rate(api_requests_total[5m])) by (endpoint)" }
+        ],
+        "description": "Breakdown of request rate across endpoints (/predict, /metrics, /healthz)."
+      },
+      {
+        "type": "graph",
+        "title": "Training Reward Distribution",
+        "targets": [
+          { "expr": "histogram_quantile(0.5, sum(rate(training_reward_bucket[5m])) by (le))" }
+        ],
+        "description": "Tracks median reward per episode, useful for seeing RL agent progress."
+      },
+      {
+        "type": "stat",
+        "title": "Error Rate",
+        "targets": [
+          { "expr": "sum(increase(api_requests_total{status='500'}[5m])) / sum(increase(api_requests_total[5m]))" }
+        ],
+        "description": "Shows the fraction of requests returning errors (status=500)."
+      }
+    ]
+  }
+}

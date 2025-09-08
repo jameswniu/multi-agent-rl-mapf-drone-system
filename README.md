@@ -1,82 +1,146 @@
-# Drone RL Environment + PPO Agent
-
-This project demonstrates:
-- A custom Gym environment for a simplified drone.
-- A Proximal Policy Optimization (PPO) agent implemented in PyTorch.
-- Integrity validation to catch drift (values outside expected ranges) and hallucinations (invalid actions or outputs).
-- Tests to confirm training and validation run end-to-end.
+# Multi-Agent RL MAPF Drone Demo
+**Instant-alignment drone AI for safe, adaptive, real-time flight control**
 
 ---
 
-## Project Structure
+## Overview  
+This project combines Reinforcement Learning (RL), Multi-Agent Path Finding (MAPF), and real-time alignment scoring to control drones safely. Instead of waiting for delayed success signals, the system scores each action instantly against internal principles (the “Constitution”) so it can act safely and efficiently in real time.
 
-project-root/
-│
-├── env/
-│   └── drone_env.py          # Custom Gym environment (actions, features, rewards, validation)
-│
-├── agents/
-│   └── ppo_agent.py          # PPO agent with policy + value networks, training loop, validation
-│
-├── main.py                   # Orchestration script: training, saving, inference
-├── integrity_validators.py   # Environment + policy validators (drift and hallucination checks)
-├── integrity_stats.py        # Tracks drift vs hallucination counts, prints reports
-├── models/                   # Directory for saved models (created at runtime)
-│
-├── tests/
-│   ├── test_training.py      # Integration test: train + save + inference
-│   ├── test_integrity.py     # Validator tests: clean run + bad input detection
-│   └── conftest.py           # PyTest fixtures (env, agent, model path)
+The system integrates:  
+- A custom drone environment  
+- A PPO agent in PyTorch  
+- Alignment scoring for safety and smoothness  
+- API endpoints for predictions, health, and metrics  
+- Monitoring hooks for production environments  
 
 ---
 
-## Drone Environment
+## System Architecture
 
-**Actions (Discrete, 5):**
-- hover
-- climb
-- turn_left
-- turn_right
-- forward
+### Core Agents
+- **Ingestion Agent**  
+  Collects raw sensor data (camera, GPS, IMU, barometer) at fixed frequency and queues it.  
 
-**State (Continuous, 5 features normalized to [0,1]):**
-1. Energy level -> remaining battery  
-2. Stability -> balance/steadiness  
-3. Orientation -> yaw/heading direction  
-4. Altitude ratio -> altitude relative to safe range  
-5. Proximity -> distance to nearest obstacle or target  
+- **Preprocess Agent**  
+  Filters and compresses raw inputs into compact features.  
 
-**Rewards:** Computed from a "constitution" (a list of principles, e.g. safety).  
-**Validation:** Every step is checked by `IntegrityValidator` for drift and hallucinations.
+- **Prediction Agent**  
+  Uses the PPO policy to select the drone’s next action (hover, climb, move, turn).  
 
----
+### Alignment Scoring
+Each action is scored instantly against values:  
+- Maintain safety margins  
+- Save energy  
+- Move smoothly  
 
-## PPO Agent
+Weighted scores are combined and tested for stability. The Alignment Policy selects the safest, most stable action.  
 
-- **Architecture:** Shared backbone -> Policy head (action probabilities) + Value head (state baseline).  
-- **Training loop:** Collects rollouts, computes discounted returns, applies PPO clipped update.  
-- **Validation:** `PolicyIntegrityValidator` checks:
-  - Probabilities ≥ 0 and sum ≈ 1  
-  - Value predictions finite  
-  - Actions legal in the action space  
+### Safety and Oversight
+- **Safety Controller** – vetoes unsafe actions (for example, entering a no-fly zone).  
+- **Supervisor** – starts/stops agents, restarts failures, quarantines unstable modules.  
 
 ---
 
-## Integrity Layer
+## Repository Structure
+    multi-agent-rl-mapf-drone-system/
+    ├── configs/              # Training and environment configs
+    ├── docker/               # Docker and Kubernetes deployment files
+    ├── docs/                 # Architecture and deployment documentation
+    ├── monitoring/           # Prometheus, Grafana, Alertmanager configs
+    ├── scripts/              # Helper scripts (run, train, deploy)
+    ├── src/                  # Source code (agents, API, env, utils)
+    └── tests/                # Unit, integration, and load tests
 
-- **integrity_validators.py:** Defines reusable environment + policy validators.  
-- **integrity_stats.py:** Counts drift vs hallucination separately and reports percentages.  
+---
+
+## System Design Files
+- High-Level Diagram: `drone_high_lv_system_design.png`  
+- Low-Level Diagram: `drone_low_lv_system_design.png`  
+- Reward Patterns Reference: `drones_matrix_RL.png`  
+- Detailed Specs: `low_level_design/`  
+
+---
+
+## Installation
+
+Clone the repository and install dependencies:
+
+    git clone <repo-url>
+    cd multi-agent-rl-mapf-drone-system
+    pip install -r requirements.txt
+
+Or, with pyproject.toml:
+
+    pip install .
+
+---
+
+## Usage
+
+Train the model:
+
+    python src/main.py --config configs/train.yaml
+
+Run the API server:
+
+    uvicorn src.api.app:app --reload
+
+Example request:
+
+    curl -X POST http://localhost:8000/predict          -H "Content-Type: application/json"          -d '{"state": {"drone": [0,0], "goal": [5,5]}}'
+
+Example response:
+
+    {"action": "move_up"}
+
+---
+
+## Deployment
+
+Using Docker:
+
+    docker build -t drone-system -f docker/Dockerfile.prod .
+    docker run -p 8080:8080 drone-system
+
+Using Kubernetes:
+
+    kubectl apply -f docker/k8s/deployment.yaml
+    kubectl apply -f docker/k8s/service.yaml
+
+---
+
+## Monitoring
+- Metrics: `/metrics` endpoint (Prometheus)  
+- Health: `/healthz` endpoint (Kubernetes probes)  
+- Dashboard: `monitoring/grafana-dashboard.json`  
+- Alerting: `monitoring/alertmanager.yml`  
+
+Key Grafana panels:  
+- Request latency (p95)  
+- Requests by endpoint  
+- Training reward distribution  
+- Error rate  
 
 ---
 
 ## Tests
 
-- **test_training.py:** Runs a small training + inference cycle, ensures saving works.  
-- **test_integrity.py:** Confirms validators behave correctly:
-  - No errors on normal runs
-  - Errors flagged on intentionally bad inputs  
-- **conftest.py:** Provides fixtures to avoid boilerplate in tests.
-
 Run all tests:
-```bash
-pytest -v
+
+    pytest --cov=src
+
+Covers:  
+- Unit tests (`tests/test_api.py`, `tests/test_training.py`)  
+- Integrity tests (`tests/test_integrity.py`)  
+- Integration tests (`tests/test_integration.py`)  
+- Load tests (`tests/test_load.py`)  
+
+---
+
+## Contributing  
+See [CONTRIBUTING.md](CONTRIBUTING.md).  
+
+---
+
+## License  
+MIT License – see [LICENSE](LICENSE).  

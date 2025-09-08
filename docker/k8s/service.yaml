@@ -1,0 +1,13 @@
+# Kubernetes Service: exposes the app to the network
+apiVersion: v1
+kind: Service
+metadata:
+  name: drone-system
+spec:
+  type: LoadBalancer
+  selector:
+    app: drone-system
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

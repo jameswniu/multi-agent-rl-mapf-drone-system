@@ -1,0 +1,25 @@
+# Kubernetes Deployment: tells the cluster how to run the app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-system
+spec:
+  replicas: 3   # run 3 copies for reliability
+  selector:
+    matchLabels:
+      app: drone-system
+  template:
+    metadata:
+      labels:
+        app: drone-system
+    spec:
+      containers:
+      - name: drone-system
+        image: drone-system:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: drone-config
+        - secretRef:
+            name: drone-secrets

@@ -1,0 +1,14 @@
+# Production configuration file
+# Training parameters tuned for real use, not just development
+
+training:
+  episodes: 100000
+  batch_size: 64
+  learning_rate: 0.0001
+
+monitoring:
+  prometheus: true
+  log_level: INFO
+
+api:
+  port: 8080

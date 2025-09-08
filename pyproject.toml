@@ -1,0 +1,23 @@
+# This file defines the project as a modern Python package
+# Instead of only requirements.txt, pyproject.toml is now standard
+# It tells tools how to build and what dependencies are required
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-rl-mapf-drone-system"
+version = "0.1.0"
+description = "Multi-agent reinforcement learning for drone coordination"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",            # Web API framework
+    "uvicorn",            # ASGI server to run FastAPI
+    "numpy",              # Numerical computing
+    "torch",              # Deep learning framework
+    "prometheus-client",  # Exporting metrics
+    "pytest",             # Testing framework
+    "pytest-cov"          # Coverage reports
+]

@@ -1,0 +1,25 @@
+# This workflow runs CodeQL, GitHub's security analysis tool
+# It scans the code for vulnerabilities on every push/PR
+
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    strategy:
+      matrix:
+        language: [ 'python' ]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+    - uses: github/codeql-action/analyze@v2
