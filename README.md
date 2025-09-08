@@ -1,8 +1,7 @@
-# Multi-Agent RL MAPF Drone System  
+# Multi-Agent RL MAPF Drone System
 Instant-alignment drone AI for safe, adaptive, real-time flight control  
 
-**About**  
-Real time drone AI for safe and adaptive flight. Uses multi agent reinforcement learning with Proximal Policy Optimization (PPO) for path finding and coordination, built on a FastAPI backend with weight loading at startup, test isolation for CI, and Docker deployment to bridge research into production. 
+**Production-ready design**: FastAPI backend with startup weight loading, test isolation for CI, Docker deployment, and monitoring hooks to bridge research into real-world systems. 
 
 ---
 
