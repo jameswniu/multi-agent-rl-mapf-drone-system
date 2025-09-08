@@ -65,7 +65,7 @@ Weighted scores are combined and tested for stability. The Alignment Policy sele
 
 ## Installation
 
-Clone the repository and install dependencies:
+Clone the repository and install dependencies (ensure you are using Python 3.10):
 
     git clone <repo-url>
     cd multi-agent-rl-mapf-drone-system
