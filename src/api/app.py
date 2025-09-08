@@ -38,7 +38,18 @@ app.add_exception_handler(APIError, error_handler)
 # Load environment and agent once at startup
 env = DroneEnv("configs/env.yaml")
 agent = PPOAgent(env)
-agent.load("models/ppo_drone.pt")
+
+
+@app.on_event("startup")
+def load_agent_weights():
+    """Load agent weights if available on startup."""
+    try:
+        agent.load("models/ppo_drone.pt")
+    except FileNotFoundError:
+        logger.warning(
+            "Model weights not found at 'models/ppo_drone.pt';"
+            " starting without pretrained weights."
+        )
 
 
 # -------------------------------------------------
