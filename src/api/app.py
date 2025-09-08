@@ -9,6 +9,7 @@
 
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse, JSONResponse
+from pydantic import BaseModel
 import time
 
 # Prometheus metrics utilities
@@ -24,6 +25,11 @@ from src.utils.errors import APIError, error_handler
 # Domain-specific code: environment and agent
 from src.env.drone_env import DroneEnv
 from src.agents.ppo_agent import PPOAgent
+
+
+class StateInput(BaseModel):
+    """Schema for the prediction request body."""
+    state: dict
 
 
 # -------------------------------------------------
@@ -77,15 +83,15 @@ async def add_metrics(request: Request, call_next):
 # -------------------------------------------------
 
 @app.post("/predict")
-def predict(state: dict):
+def predict(payload: StateInput):
     """
-    Accepts a state (JSON dictionary) and returns the agent's action.
+    Accepts a payload matching :class:`StateInput` and returns the agent's action.
     Example request: { "state": {...} }
     Example response: { "action": ... }
     """
     logger.info("Received predict request")
     try:
-        action = agent.predict(state)
+        action = agent.predict(payload.state)
     except Exception as e:
         # Wrap raw exceptions in a clean APIError
         raise APIError(f"Prediction failed: {str(e)}", status_code=500)
