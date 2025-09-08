@@ -1,13 +1,42 @@
+# Byte-compiled / optimized files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.log
-*.out
-*.h5
-*.pt
-.env
-.venv
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
 *.egg-info/
-.DS_Store
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# PyTest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.swp
+
+# Model artifacts
+models/
+*.pt
+*.pth
+
+# Gym recordings (if you enable video/monitoring)
+gym-results/

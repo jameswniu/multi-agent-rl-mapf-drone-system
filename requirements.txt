@@ -1,9 +1,6 @@
-torch==2.2.0
-numpy==1.26.0
 gym==0.26.2
-fastapi==0.110.0
-uvicorn==0.29.0
-pydantic==2.6.0
-pytest==8.1.0
-structlog==24.1.0
-prometheus-client==0.20.0
+torch==2.0.1
+numpy==1.24.3
+pytest==7.4.0
+matplotlib==3.7.1
+jupyter==1.0.0
