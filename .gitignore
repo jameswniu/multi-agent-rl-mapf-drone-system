@@ -1,4 +1,5 @@
-# Byte-compiled / optimized files
+# ----------------------------
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
@@ -28,10 +29,18 @@ htmlcov/
 .coverage
 .coverage.*
 
+# Static analysis / tooling
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
 # IDE/editor configs
 .vscode/
 .idea/
 *.swp
+
+# Environment variables
+.env
 
 # Model artifacts
 models/
@@ -40,3 +49,7 @@ models/
 
 # Gym recordings (if you enable video/monitoring)
 gym-results/
+
+# Docker/K8s runtime files
+*.pid
+*.sock

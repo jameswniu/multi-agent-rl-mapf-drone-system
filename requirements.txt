@@ -1,6 +1,25 @@
+# Unified dependencies for multi-agent-rl-mapf-drone-system
+
+# Core ML stack
 gym==0.26.2
 torch==2.0.1
 numpy==1.24.3
-pytest==7.4.0
 matplotlib==3.7.1
+
+# API and monitoring
+fastapi==0.110.0
+uvicorn==0.27.1
+prometheus-client==0.20.0
+
+# Testing and dev tools
+pytest==7.4.0
+pytest-cov==4.1.0
 jupyter==1.0.0
+
+# ------------------------------
+# Developer Note:
+# This project uses a `src/` layout.
+# To run tests or import modules correctly, always install in editable mode:
+#     pip install -e .
+# This ensures `env`, `agents`, `api`, etc. are discoverable as top-level packages.
+# ------------------------------

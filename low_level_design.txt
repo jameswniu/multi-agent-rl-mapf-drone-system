@@ -1,0 +1,50 @@
+Drone ↔ Server Low-Level Architecture
+1.	On-drone components
+•	Root Supervisor – Restarts agents on crash; enforces deadlines; time sync (GPS/PTP); health beacons every 200 ms.
+•	Ingestion actors – One per bus (IMU/GPS/LiDAR/Cam). Output → Q1 (bounded 64). Message: Frame{seq, ts, payload}.
+•	Preprocess pipeline – Stages: Calibrate → Filter → Fuse (deterministic). Output → Q2 (bounded 64). Message: Features[list[float]].
+•	Policy service – Candidate generator + Alignment Scorer (uses Constitution weights; includes stability/inversion test). Output → Q3 (bounded 128). Message: Decision{seq, ts, action, alignment_reward, notes}.
+•	Safety Controller – Rules: geofence, separation, altitude, RTH. Final arbiter; can override any action.
+•	Black Box – Ring buffer of agent logs + decisions + overrides for last N minutes.
+2.	Interfaces
+gRPC (data plane; internal)
+•	rpc AppendEvents(stream DecisionEvent) returns (Ack)
+•	rpc HealthBeat(HealthMsg) returns (Ack)
+•	(Optional for multi-agent) rpc Decide(stream Observation) returns (stream Action)
+Message (DecisionEvent): { drone_id, seq, ts, features_hash, action, alignment_reward, safety_override?, queue_depths, latencies_ms }
+REST (control plane; externalized)
+•	GET /v1/constitution?drone_id=… → returns weights.json (ETag for caching)
+•	POST /v1/override → push temporary safeties (e.g., new geofence)
+•	GET /v1/flags?drone_id=… → feature flags/rollout cohort
+•	POST /v1/ack → optional receipt for config uptake
+Example weights.json:
+{
+"version": "2025-08-12T10:00:00Z",
+"principles": [
+{"name":"safety_margin","weight":0.50},
+{"name":"energy_thrift","weight":0.20},
+{"name":"smoothness","weight":0.30}
+]
+}
+3.	Server side
+•	gRPC Ingest Gateway – mTLS; rate-limit per drone; accepts DecisionEvent.
+•	Stream Processor – windowed enrich; writes to Event Store (append-only) and Time-series DB (latency, reward, override rates).
+•	Analytics & Evals – KPIs (p50/p95 latency, intervention rate), drift (embedding/feature shift), fairness/quality.
+•	Weight Learner – Continuous re-weighting based on long-horizon outcomes (e.g., delivery success, fire-near-miss).
+•	Config/Weights API – Serves weights.json (ETag/If-None-Match); integrates with Feature Flags for canary/rollout; publishes to Registry.
+•	Monitoring/Alerts – SLOs, pager alerts on error budgets.
+4.	SLOs, timeouts, retries
+•	On-drone queues: Q1=64, Q2=64, Q3=128 (drop counts surfaced as metrics).
+•	Per-tick budget: ingest ≤ 5 ms, preprocess ≤ 8 ms, policy ≤ 7 ms, safety ≤ 5 ms (target 25 ms loop).
+•	gRPC: deadlines 50–100 ms; client retries with exponential backoff; idempotency via (drone_id, seq).
+•	REST config: cache 5–15 min; ETag to avoid heavy pulls; rollouts in 5% cohorts; automatic rollback on health regression.
+5.	Failure & degrade modes
+•	Agent crash → supervisor restart; after N restarts in 30 s, quarantine and downgrade policy to simpler heuristic.
+•	Telemetry loss → buffer locally (ring buffer), backfill when link stable.
+•	Config service down → keep last known weights.json; expire after TTL, then switch to safest default.
+•	Safety trip (e.g., rules engine failure) → RTH/loiter until recovered.
+6.	Security
+•	mTLS for gRPC; device-bound certs.
+•	Signed configs (weights, flags); verify signature + ETag version.
+•	Least privilege on device processes; immutable audit logs on server.
+

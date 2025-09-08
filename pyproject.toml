@@ -1,23 +1,38 @@
-# This file defines the project as a modern Python package
-# Instead of only requirements.txt, pyproject.toml is now standard
-# It tells tools how to build and what dependencies are required
+# pyproject.toml for multi-agent-rl-mapf-drone-system
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "multi-agent-rl-mapf-drone-system"
 version = "0.1.0"
-description = "Multi-agent reinforcement learning for drone coordination"
+description = "Multi-agent reinforcement learning and MAPF drone coordination system"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "fastapi",            # Web API framework
-    "uvicorn",            # ASGI server to run FastAPI
-    "numpy",              # Numerical computing
-    "torch",              # Deep learning framework
-    "prometheus-client",  # Exporting metrics
-    "pytest",             # Testing framework
-    "pytest-cov"          # Coverage reports
+license = { file = "LICENSE" }
+
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
 ]
+
+dependencies = [
+    # Core ML stack
+    "gym==0.26.2",
+    "torch==2.0.1",
+    "numpy==1.24.3",
+    "matplotlib==3.7.1",
+
+    # API and monitoring
+    "fastapi==0.110.0",
+    "uvicorn==0.27.1",
+    "prometheus-client==0.20.0",
+
+    # Testing and dev tools
+    "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    "jupyter==1.0.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
