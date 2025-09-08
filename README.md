@@ -1,7 +1,5 @@
 # Multi-Agent RL MAPF Drone System
-**Instant-alignment drone AI for safe, adaptive, real-time flight control.**
-
-Production-ready multi agent drone AI with PPO, FastAPI backend, Docker deployment, and monitoring.
+**Instant-alignment drone AI for safe, adaptive, real-time flight control.** Production-ready multi agent drone AI with PPO, FastAPI backend, Docker deployment, and monitoring.
 
 ---
 
